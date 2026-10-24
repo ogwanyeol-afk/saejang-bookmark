@@ -21,7 +21,7 @@
 **자동 처리**
 - AI 분류: 제목마다 주제·소주제·수준·세금 상담 주제(Claude). 키가 없으면 키워드 규칙
 - 영상 길이: YouTube Data API(키가 없으면 영상당 11분으로 계산하고 화면에 표시)
-- 새 책: 큐레이션 → 알라딘 판매 인기 → 도서관 정보나루 인기 대출 → 국립중앙도서관 사서 추천 순서로 돌아가며, 키가 없는 출처는 건너뜀
+- 새 책: 큐레이션 3권 다음부터 "새 책 3권 찾기"마다 **검색어와 출처를 함께 바꿔** 가져옴. 주제마다 검색어 10~18개(예: 마케팅 → 카피라이팅·고객 심리·행동경제학·퍼스널 브랜딩…) × 출처 6곳(알라딘·카카오·네이버·도서관 정보나루·Google 도서·국립중앙도서관). 키가 없는 출처는 건너뛰고, Google 도서는 키 없이도 동작. 수험서·문제집·전집은 자동 제외. 교보문고·예스24·영풍문고는 공개 API가 없어 구매 링크로만 연결
 - 알림: 매주 일요일 20:00 주간 리포트(유튜브·독서 시간), 세금 영상 3개 이상이면 상담 알림 추가, 매주 수요일 15:00 "AI가 일하는 동안 10분 읽기" 알림
 
 ## 구조 (Cloudflare Workers 버전)
@@ -75,6 +75,8 @@
    | `ANTHROPIC_API_KEY` | Claude 키 (없으면 키워드 분류) |
    | `ALADIN_TTB_KEY`, `LIBRARY_API_KEY`, `NL_API_KEY` | 도서 API (없으면 그 출처를 건너뜀) |
    | `YOUTUBE_API_KEY` | 영상 길이 조회 (없으면 영상당 11분) |
+| `KAKAO_REST_KEY` | 카카오 책 검색 (developers.kakao.com → 앱 만들기 → REST API 키, 바로 발급) |
+| `NAVER_CLIENT_ID`, `NAVER_CLIENT_SECRET` | 네이버 책 검색 (developers.naver.com → 애플리케이션 등록 → 검색 API, 바로 발급, 하루 2만 5천 회) |
 
    `ADMIN_EMAILS`, `ANTHROPIC_MODEL`, `VAPID_SUBJECT`는 `wrangler.jsonc`의 `vars`에 이미 들어 있습니다.
 6. 4번 주소를 Supabase Authentication → URL Configuration의 Site URL과 Redirect URLs에 넣습니다.

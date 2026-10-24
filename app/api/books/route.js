@@ -8,7 +8,7 @@ export async function POST(req) {
   const { supabase, user, error } = await userClient(req);
   if (error) return json({ error }, 401);
   const b = await req.json().catch(() => ({}));
-  if (typeof b.spec !== 'string' || !Number.isInteger(b.batch) || b.batch < 0 || b.batch > 60) return json({ error: '잘못된 요청입니다.' }, 400);
+  if (typeof b.spec !== 'string' || !Number.isInteger(b.batch) || b.batch < 0 || b.batch > 2000) return json({ error: '잘못된 요청입니다.' }, 400);
   const [{ data: prof }, { data: st }] = await Promise.all([
     supabase.from('profiles').select('b2b').eq('id', user.id).maybeSingle(),
     supabase.from('book_status').select('title').eq('user_id', user.id),
