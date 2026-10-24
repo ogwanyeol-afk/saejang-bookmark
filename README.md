@@ -76,7 +76,7 @@
 
    `ADMIN_EMAILS`, `ANTHROPIC_MODEL`, `VAPID_SUBJECT`는 `wrangler.jsonc`의 `vars`에 이미 들어 있습니다.
 6. 4번 주소를 Supabase Authentication → URL Configuration의 Site URL과 Redirect URLs에 넣습니다.
-7. **Settings → Triggers**에 크론 2개(`0 11 * * 0`, `0 6 * * 3`, UTC 기준)가 보이면 정상입니다.
+7. **Settings → Triggers**에 크론 2개(`0 11 * * SUN`, `0 6 * * WED`, UTC 기준)가 보이면 정상입니다.
 8. (선택) **Settings → Domains & Routes**에서 내 도메인(예: `book.도메인`)을 연결합니다. 연결한 뒤에는 6번 주소도 바꿔 줍니다.
 
 ### 4. 웹 푸시 키
