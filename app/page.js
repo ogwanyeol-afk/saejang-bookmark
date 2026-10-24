@@ -59,7 +59,7 @@ export default function Home() {
   if (session === undefined) return <div className="center"><p className="hint">불러오는 중…</p></div>;
   if (!session) return <Login />;
   if (!profile) return <div className="center"><p className="hint">계정 확인 중…</p></div>;
-  if (!profile.consent_at) return <Consent onAgree={() => saveProfile({ consent: true })} />;
+  if (!profile.consent_at) return <Consent onAgree={() => saveProfile({ consent: true, age14: true })} />;
   if (!profile.onboarded_at || restart) return <Onboarding profile={profile} notify={notify} onSave={(b) => saveProfile(b, () => { setRestart(false); go('report'); })} />;
   if (editMe) return <Onboarding profile={profile} meOnly notify={notify} onCancel={() => setEditMe(false)} onSave={(b) => saveProfile(b, () => { setEditMe(false); notify('관심사를 반영해 다른 서가 책을 다시 골랐어요'); })} />;
 
@@ -67,7 +67,7 @@ export default function Home() {
   return (
     <div className="wrap">
       <header className="apphead">
-        <div className="a-h1">사장님 <em>책갈피</em></div>
+        <div className="a-h1">하루 <em>한 쪽</em></div>
         {me.admin && <a className="sbtn" href="/admin">관리자</a>}
       </header>
       <nav className="tabs" role="tablist">

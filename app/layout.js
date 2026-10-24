@@ -1,10 +1,10 @@
 import './globals.css';
 
 export const metadata = {
-  title: '사장님 책갈피',
-  description: '대표님이 본 유튜브를 주간 리포트로 돌려드리고, 다음 단계로 가는 책과 꼭 알아야 할 세금을 알려드립니다',
+  title: '하루 한 쪽',
+  description: '요즘 관심사를 한 단계 깊게 읽을 책으로 바꿔 드리고, 하루 10분 읽는 습관과 내 단계에 맞는 돈·세금 정보를 알려 드립니다',
   manifest: '/manifest.json',
-  appleWebApp: { capable: true, title: '사장님 책갈피', statusBarStyle: 'default' },
+  appleWebApp: { capable: true, title: '하루 한 쪽', statusBarStyle: 'default' },
   icons: { icon: '/icon-192.png', apple: '/apple-touch-icon.png' },
 };
 

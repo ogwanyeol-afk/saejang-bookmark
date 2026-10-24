@@ -1,4 +1,4 @@
--- 사장님 책갈피 스키마
+-- 하루 한 쪽 스키마
 -- Supabase 대시보드 → SQL Editor 에 전체를 붙여넣고 Run (여러 번 실행해도 안전)
 
 create table if not exists public.profiles (
@@ -125,3 +125,8 @@ create table if not exists public.youtube_links (
   last_error text
 );
 alter table public.youtube_links enable row level security;
+
+alter table public.profiles add column if not exists persona text;          -- worker·indiv·corp·pre·free·student·home·senior
+alter table public.profiles add column if not exists age14_at timestamptz;  -- 만 14세 이상 확인 시각
+alter table public.profiles drop constraint if exists profiles_persona_check;
+alter table public.profiles add constraint profiles_persona_check check (persona is null or persona in ('worker','indiv','corp','pre','free','student','home','senior'));

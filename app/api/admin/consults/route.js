@@ -15,7 +15,7 @@ export async function GET(req) {
   if (res) return res;
   const { data: reqs } = await db.from('consult_requests').select('*').order('created_at', { ascending: false }).limit(200);
   const ids = [...new Set((reqs || []).map((r) => r.user_id))];
-  const { data: profs } = ids.length ? await db.from('profiles').select('id, form, industry, stage').in('id', ids) : { data: [] };
+  const { data: profs } = ids.length ? await db.from('profiles').select('*').in('id', ids) : { data: [] };
   const emails = {};
   for (const id of ids) {
     const { data } = await db.auth.admin.getUserById(id);

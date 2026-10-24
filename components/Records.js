@@ -84,11 +84,11 @@ export default function Records({ profile, setProfile, email, notify, reload, on
       <div className="panel">
         <h2 className="p">휴대폰 공유 메뉴에 추가</h2>
         <h3>안드로이드</h3>
-        <ol className="guide"><li>크롬 오른쪽 위 ⋮ → <b>앱 설치</b>(또는 홈 화면에 추가)</li><li>유튜브에서 <b>공유 → 사장님 책갈피</b>를 누르면 바로 분석됩니다</li></ol>
+        <ol className="guide"><li>크롬 오른쪽 위 ⋮ → <b>앱 설치</b>(또는 홈 화면에 추가)</li><li>유튜브에서 <b>공유 → 하루 한 쪽</b>을 누르면 바로 분석됩니다</li></ol>
         <h3 style={{ marginTop: 10 }}>아이폰 (단축어)</h3>
         {!profile.share_token ? <button className="btn ghost" onClick={() => patch({ newShareToken: true }, '공유 토큰을 만들었습니다')}>단축어용 공유 토큰 만들기</button> : <>
           <ol className="guide">
-            <li><b>단축어</b> 앱 → <b>+</b> → 이름 "책갈피로 보내기"</li>
+            <li><b>단축어</b> 앱 → <b>+</b> → 이름 "하루 한 쪽으로 보내기"</li>
             <li>정보(ⓘ) → <b>공유 시트에 표시</b> 켜기, 받을 유형은 <b>URL</b>과 <b>텍스트</b></li>
             <li>동작 <b>URL 콘텐츠 가져오기</b> → URL:<Copy value={`${env.origin}/api/share`} /></li>
             <li>방법 <b>POST</b>, 요청 본문 <b>JSON</b>, 필드 <code>token</code> = 아래 토큰, <code>text</code> = <b>단축어 입력</b><Copy value={profile.share_token} /></li>

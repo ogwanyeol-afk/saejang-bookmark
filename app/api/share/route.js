@@ -9,12 +9,12 @@ export const dynamic = 'force-dynamic';
 export async function POST(req) {
   const body = await req.json().catch(() => ({}));
   const token = String(body.token || '').trim();
-  if (token.length < 20) return json({ message: '공유 토큰이 없습니다. 사장님 책갈피 설정에서 단축어를 다시 설치해 주세요.' }, 401);
+  if (token.length < 20) return json({ message: '공유 토큰이 없습니다. 하루 한 쪽 설정에서 단축어를 다시 설치해 주세요.' }, 401);
 
   const admin = adminClient();
   const { data: prof } = await admin.from('profiles').select('id, consent_at, b2b').eq('share_token', token).maybeSingle();
   if (!prof) return json({ message: '공유 토큰이 맞지 않습니다. 설정에서 새 토큰으로 단축어를 다시 설치해 주세요.' }, 401);
-  if (!prof.consent_at) return json({ message: '사장님 책갈피 앱에서 데이터 수집 동의를 먼저 해 주세요.' }, 403);
+  if (!prof.consent_at) return json({ message: '하루 한 쪽 앱에서 데이터 수집 동의를 먼저 해 주세요.' }, 403);
 
   const r = await resolveShared({ title: body.title, text: body.text, url: body.url });
   if (!r.text) return json({ message: '분석할 제목이나 링크가 없습니다.' }, 400);

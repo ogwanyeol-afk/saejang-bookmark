@@ -1,11 +1,11 @@
-// 책갈피 서비스 워커: 푸시 알림 표시와 알림 클릭 처리
+// 하루 한 쪽 서비스 워커: 푸시 알림 표시와 알림 클릭 처리
 self.addEventListener('install', () => self.skipWaiting());
 self.addEventListener('activate', (e) => e.waitUntil(self.clients.claim()));
 
 self.addEventListener('push', (event) => {
   let data = {};
   try { data = event.data ? event.data.json() : {}; } catch { data = { body: event.data && event.data.text() }; }
-  event.waitUntil(self.registration.showNotification(data.title || '사장님 책갈피', {
+  event.waitUntil(self.registration.showNotification(data.title || '하루 한 쪽', {
     body: data.body || '새 추천이 도착했어요',
     icon: '/icon-192.png',
     badge: '/icon-192.png',

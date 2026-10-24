@@ -1,10 +1,13 @@
 'use client';
 import { useState } from 'react';
 import { api } from '@/lib/supabase-browser';
-import { tipCats } from '@/lib/catalog';
+import { tipCats, personaOf } from '@/lib/catalog';
 
 export const hm = (m) => (m >= 60 ? `${Math.floor(m / 60)}시간 ${m % 60}분` : `${m}분`);
-export const who = (p) => (p?.form === 'corp' ? '대표님' : '사장님');
+// 호칭: 사업자는 사장님·대표님, 그 밖의 유형은 호칭 없이
+export const who = (p) => (personaOf(p).biz ? (p?.form === 'corp' ? '대표님' : '사장님') : '');
+/** 화면 머리글용 "카페 사장님" / "직장인" */
+export const whoLabel = (p) => (personaOf(p).biz ? `${p?.industry || ''} ${who(p)}`.trim() : personaOf(p).name);
 const hueOf = (s) => [...String(s)].reduce((a, c) => (a * 31 + c.charCodeAt(0)) % 360, 7);
 
 export function Cover({ book, small }) {
@@ -21,7 +24,7 @@ export function Cover({ book, small }) {
 /** 오늘의 절세팁·세무 포인트: 화면을 볼 때마다(tick) 다음 팁 */
 export function Tip({ cat, label = '세무 포인트', tips, profile, tick }) {
   const [extra, setExtra] = useState(0);
-  const cats = tipCats(cat, { form: profile?.form, b2b: profile?.b2b });
+  const cats = tipCats(cat, { form: profile?.form, b2b: profile?.b2b, persona: profile?.persona || profile?.form });
   const pool = (tips || []).filter((t) => cats.includes(t.cat));
   if (!pool.length) return null;
   const off = { mkt: 0, sales: 1, money: 2, staff: 3, gen: 1 }[cat] || 0;

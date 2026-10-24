@@ -1,4 +1,4 @@
-export const metadata = { title: '개인정보처리방침 · 사장님 책갈피' };
+export const metadata = { title: '개인정보처리방침 · 하루 한 쪽' };
 
 // 출시 전 운영자 정보(상호, 대표자, 연락처, 시행일)를 반드시 실제 정보로 확인·수정하세요.
 const OPERATOR = { name: '해양세무회계', owner: '오관열', email: 'ohtax4888@naver.com', effective: '2026년 ○월 ○일' };
@@ -8,7 +8,7 @@ export default function Privacy() {
     <div className="wrap">
       <div className="panel stack" style={{ lineHeight: 1.7 }}>
         <h1 className="a-h1">개인정보처리방침</h1>
-        <p className="hint">{OPERATOR.name}(이하 "운영자")는 사장님 책갈피 이용자의 개인정보를 다음과 같이 처리합니다.</p>
+        <p className="hint">{OPERATOR.name}(이하 "운영자")는 하루 한 쪽 이용자의 개인정보를 다음과 같이 처리합니다.</p>
         <h2 className="p">1. 수집 항목</h2>
         <ul>
           <li>필수: 구글 계정 이메일, 계정 식별자</li>
@@ -29,7 +29,7 @@ export default function Privacy() {
           <li>Google LLC: 로그인, 유튜브 연결(구독·좋아요 조회), 유튜브 영상 길이 조회(영상 ID만 전송)</li>
         </ul>
         <h2 className="p">5. 유튜브 데이터 이용</h2>
-        <p>유튜브 연결로 받은 정보는 이용자 본인의 관심 주제 분석과 책·상담 추천에만 쓰며, 광고나 제3자 판매에 쓰지 않고 사람이 직접 열람하지 않습니다(상담을 신청한 경우 3항 범위 제외). 연결 해제는 앱의 "연결 끊기" 또는 구글 계정의 보안 설정(타사 앱 액세스)에서 언제든 할 수 있으며, 앱에서 연결을 끊으면 받은 구독·좋아요 기록을 즉시 지웁니다. 사장님 책갈피의 Google API 이용은 Limited Use 요건을 포함한 Google API 서비스 사용자 데이터 정책을 따릅니다.</p>
+        <p>유튜브 연결로 받은 정보는 이용자 본인의 관심 주제 분석과 책·상담 추천에만 쓰며, 광고나 제3자 판매에 쓰지 않고 사람이 직접 열람하지 않습니다(상담을 신청한 경우 3항 범위 제외). 연결 해제는 앱의 "연결 끊기" 또는 구글 계정의 보안 설정(타사 앱 액세스)에서 언제든 할 수 있으며, 앱에서 연결을 끊으면 받은 구독·좋아요 기록을 즉시 지웁니다. 하루 한 쪽의 Google API 이용은 Limited Use 요건을 포함한 Google API 서비스 사용자 데이터 정책을 따릅니다.</p>
         <h2 className="p">6. 민감정보</h2>
         <p>건강, 정치, 종교 등 민감한 주제로 분류된 기록은 기본 설정상 리포트와 추천에 사용하지 않으며, 이용자는 언제든 해당 기록을 삭제할 수 있습니다.</p>
         <h2 className="p">7. 보관 및 파기</h2>
@@ -39,7 +39,7 @@ export default function Privacy() {
         <h2 className="p">9. 문의</h2>
         <p>개인정보 보호책임자: {OPERATOR.owner} · {OPERATOR.email}</p>
         <p className="hint">시행일: {OPERATOR.effective}</p>
-        <a href="/">← 사장님 책갈피로 돌아가기</a>
+        <a href="/">← 하루 한 쪽으로 돌아가기</a>
       </div>
     </div>
   );

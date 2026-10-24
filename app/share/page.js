@@ -13,7 +13,7 @@ export default function SharePage() {
       const p = new URLSearchParams(location.search);
       const share = { title: p.get('title') || '', text: p.get('text') || '', url: p.get('url') || '' };
       const { data } = await supabase.auth.getSession();
-      if (!data.session) { setMsg('먼저 사장님 책갈피에 로그인해 주세요.'); setDone(true); return; }
+      if (!data.session) { setMsg('먼저 하루 한 쪽에 로그인해 주세요.'); setDone(true); return; }
       try {
         const [{ saved }, { profile }] = await Promise.all([api('/api/signals', { method: 'POST', body: { share } }), api('/api/profile')]);
         const s = saved?.[0];
@@ -30,7 +30,7 @@ export default function SharePage() {
   return (
     <div className="wrap center">
       <div className="panel stack" style={{ maxWidth: 420 }}>
-        <h2 className="p">사장님 책갈피로 보내기</h2>
+        <h2 className="p">하루 한 쪽으로 보내기</h2>
         <p>{msg}</p>
         {done && <div className="acts" style={{ justifyContent: 'center' }}><a className="btn" href="/">리포트 보기</a></div>}
       </div>

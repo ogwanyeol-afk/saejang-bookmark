@@ -13,7 +13,7 @@ export async function POST(req) {
     .upsert({ endpoint: subscription.endpoint, user_id: user.id, subscription });
   if (e) return json({ error: e.message }, 500);
   if (test) {
-    await sendPush(subscription, { title: '사장님 책갈피', body: '알림이 켜졌습니다. 매주 일요일 저녁 8시에 리포트를 보내드릴게요.', url: '/' });
+    await sendPush(subscription, { title: '하루 한 쪽', body: '알림이 켜졌습니다. 매주 일요일 저녁 8시에 리포트를 보내드릴게요.', url: '/' });
   }
   return json({ ok: true });
 }

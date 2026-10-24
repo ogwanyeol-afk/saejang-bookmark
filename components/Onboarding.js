@@ -1,13 +1,16 @@
 'use client';
 import { useState } from 'react';
-import { FORMS, GROUPS, INDUSTRIES, AGES, GENRES, GAPS, stagesFor } from '@/lib/catalog';
+import { PERSONAS, GROUPS, INDUSTRIES, AGES, GENRES, GAPS, stagesFor } from '@/lib/catalog';
 
-const STEPS = ['사업 형태', '업종', '매출 규모', '나에 대해'];
+const BIZ_STEPS = ['나는', '업종', '매출 규모', '나에 대해'];
+const LIFE_STEPS = ['나는', '지금 단계', '나에 대해'];
 
-/** 시작 4단계. meOnly = "관심사 수정"으로 4단계만 다시 */
+/** 시작 단계. 사업자: 나는 → 업종 → 매출 → 나에 대해 / 그 밖: 나는 → 지금 단계 → 나에 대해. meOnly = "관심사 수정" */
 export default function Onboarding({ profile, onSave, onCancel, meOnly, notify }) {
   const [step, setStep] = useState(meOnly ? 3 : 0);
-  const [form, setForm] = useState(profile?.form || null);
+  const [persona, setPersona] = useState(profile?.persona || profile?.form || null);
+  const form = ['indiv', 'corp', 'pre'].includes(persona) ? persona : null;
+  const biz = !!form;
   const [industry, setIndustry] = useState(profile?.industry || '');
   const [custom, setCustom] = useState(profile?.industry && !INDUSTRIES.some((x) => x.name === profile.industry) ? profile.industry : '');
   const [q, setQ] = useState('');
@@ -17,7 +20,7 @@ export default function Onboarding({ profile, onSave, onCancel, meOnly, notify }
   const [genres, setGenres] = useState(new Set(profile?.genres || []));
   const [gaps, setGaps] = useState(new Set(profile?.gaps || []));
   const [busy, setBusy] = useState(false);
-  const who = form === 'corp' ? '대표님' : '사장님';
+  const who = biz ? (form === 'corp' ? '대표님' : '사장님') : '나';
   const chosen = custom.trim() || industry;
 
   const save = async () => {
@@ -25,7 +28,7 @@ export default function Onboarding({ profile, onSave, onCancel, meOnly, notify }
     try {
       await onSave(meOnly
         ? { age, genres: [...genres], gaps: [...gaps] }
-        : { form, industry: chosen, stage: form === 'pre' ? 0 : stage, age, genres: [...genres], gaps: [...gaps], onboarded: true });
+        : { persona, ...(biz ? { industry: chosen } : {}), stage: form === 'pre' ? 0 : stage, age, genres: [...genres], gaps: [...gaps], onboarded: true });
     } catch (e) { notify?.(e.message); setBusy(false); }
   };
   const toggle = (set, setter, k, max) => {
@@ -34,19 +37,19 @@ export default function Onboarding({ profile, onSave, onCancel, meOnly, notify }
     setter(n);
   };
   const dots = !meOnly && (
-    <div className="obdots">{STEPS.map((s, i) => <span key={s} className={i === step ? 'on' : i < step ? 'done' : ''}>{i + 1}. {s}</span>)}</div>
+    <div className="obdots">{(biz ? BIZ_STEPS : LIFE_STEPS).map((s, i) => { const at = biz ? step : [0, 2, 3].indexOf(step); return <span key={s} className={i === at ? 'on' : i < at ? 'done' : ''}>{i + 1}. {s}</span>; })}</div>
   );
   const hits = q.trim() ? INDUSTRIES.filter((x) => (x.name + x.group + x.word).replace(/\s/g, '').includes(q.replace(/\s/g, ''))) : null;
 
   return (
     <div className="wrap"><div className="ob">
       {step === 0 && <>
-        <div className="a-h1" style={{ fontSize: '1.5rem' }}>사장님 <em>책갈피</em></div>
-        <p className="lead">대표님이 본 유튜브를 매주 리포트로 돌려드리고, 다음 단계로 가는 책과 꼭 알아야 할 세금을 알려드려요. 네 가지만 알려주세요.</p>
+        <div className="a-h1" style={{ fontSize: '1.5rem' }}>하루 <em>한 쪽</em></div>
+        <p className="lead">요즘 관심사를 한 단계 깊게 읽을 책으로 바꿔 드리고, 지금 단계에 꼭 알아야 할 돈과 세금도 알려 드려요. 몇 가지만 알려주세요.</p>
         {dots}
-        <h3>어떤 형태로 사업하세요?</h3>
-        <div className="chips one">{FORMS.map((f) => <button key={f.key} className="chip" aria-pressed={form === f.key} onClick={() => setForm(f.key)}><b>{f.name}</b><span>{f.desc}</span></button>)}</div>
-        <button className="btn block" disabled={!form} onClick={() => setStep(1)}>다음</button>
+        <h3>나는 지금</h3>
+        <div className="chips">{PERSONAS.map((f) => <button key={f.key} className="chip" aria-pressed={persona === f.key} onClick={() => { setPersona(f.key); setStage(null); }}><b>{f.name}</b><span>{f.desc}</span></button>)}</div>
+        <button className="btn block" disabled={!persona} onClick={() => setStep(biz ? 1 : 2)}>다음</button>
       </>}
 
       {step === 1 && <>
@@ -67,15 +70,15 @@ export default function Onboarding({ profile, onSave, onCancel, meOnly, notify }
       </>}
 
       {step === 2 && <>
-        <div className="a-h1">작년 매출은 어느 정도인가요?</div>{dots}
-        <p className="lead">{form === 'corp' ? '법인' : '개인사업자'} 기준으로 사업 단계를 정하고, 단계에 맞는 책과 세금 정보를 보여드려요. 구간만 고르시면 됩니다.</p>
-        <div className="chips">{stagesFor(form).map((s, i) => <button key={s.name} className="chip" aria-pressed={stage === i} onClick={() => setStage(i)}><b>{s.label}</b><span>{s.name}</span></button>)}</div>
-        <div className="acts"><button className="btn ghost" onClick={() => setStep(1)}>이전</button><button className="btn" style={{ flex: 1 }} disabled={stage === null} onClick={() => setStep(3)}>다음</button></div>
+        <div className="a-h1">{biz ? '작년 매출은 어느 정도인가요?' : '지금 어느 단계에 가까우세요?'}</div>{dots}
+        <p className="lead">{biz ? `${form === 'corp' ? '법인' : '개인사업자'} 기준으로 사업 단계를 정하고, 단계에 맞는 책과 세금 정보를 보여드려요. 구간만 고르시면 됩니다.` : '단계에 맞는 책과, 그 단계에서 챙길 돈·세금을 알려 드려요.'}</p>
+        <div className="chips">{stagesFor({ persona, form }).map((s, i) => <button key={s.name} className="chip" aria-pressed={stage === i} onClick={() => setStage(i)}><b>{biz ? s.label : s.name}</b><span>{biz ? s.name : s.label}</span></button>)}</div>
+        <div className="acts"><button className="btn ghost" onClick={() => setStep(biz ? 1 : 0)}>이전</button><button className="btn" style={{ flex: 1 }} disabled={stage === null} onClick={() => setStep(3)}>다음</button></div>
       </>}
 
       {step === 3 && <>
-        <div className="a-h1">{who}에 대해 알려주세요</div>{dots}
-        <p className="lead">영상으로 보는 주제 말고도 {who}께 필요한 책을 찾아드려요. 고를수록 추천이 다양해지고, 언제든 바꿀 수 있어요.</p>
+        <div className="a-h1">{biz ? `${who}에 대해` : '나에 대해'} 알려주세요</div>{dots}
+        <p className="lead">영상으로 보는 주제 말고도 {biz ? `${who}께` : ''} 필요한 책을 찾아드려요. 고를수록 추천이 다양해지고, 언제든 바꿀 수 있어요.</p>
         <h3>나이대</h3>
         <div className="pills">{AGES.map((a, i) => <button key={a} className="pill" aria-pressed={age === i} onClick={() => setAge(age === i ? null : i)}>{a}</button>)}</div>
         <h3>좋아하거나 읽어보고 싶은 분야 <span className="hint">· 여러 개</span></h3>

@@ -1,7 +1,7 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { supabase, configured, api } from '@/lib/supabase-browser';
-import { stagesFor, FORMS } from '@/lib/catalog';
+import { stagesFor, personaOf } from '@/lib/catalog';
 
 const STATUS = { new: '새 신청', contacted: '연락함', done: '완료' };
 const CAT = { gen: '공통(개인)', gen_corp: '공통(법인)', mkt: '마케팅', mkt_b2b: '영업(기업 고객)', sales: '매출', money: '재테크(개인)', money_corp: '재테크(법인)', staff: '직원' };
@@ -22,7 +22,7 @@ export default function Admin() {
 
   return (
     <div className="wrap admin" style={{ maxWidth: 960 }}>
-      <header className="apphead"><div className="a-h1">사장님 <em>책갈피</em> 관리자</div><a className="sbtn" href="/">앱으로</a></header>
+      <header className="apphead"><div className="a-h1">하루 <em>한 쪽</em> 관리자</div><a className="sbtn" href="/">앱으로</a></header>
       <nav className="tabs">{[['consults', '상담 신청'], ['tips', '절세 팁']].map(([k, l]) => <button key={k} aria-selected={tab === k} onClick={() => setTab(k)}>{l}</button>)}</nav>
       {err && <p className="tip" style={{ color: 'var(--warn)' }}>{err}</p>}
 
@@ -32,11 +32,11 @@ export default function Admin() {
           <div className="tw"><table>
             <thead><tr><th>신청일</th><th>신청자</th><th>상담 주제</th><th>최근 세금 영상</th><th>상태</th></tr></thead>
             <tbody>{reqs.map((r) => {
-              const p = r.profile; const st = p ? stagesFor(p.form)[p.stage ?? 0] : null;
+              const p = r.profile; const st = p ? stagesFor(p)[p.stage ?? 0] : null;
               return (
                 <tr key={r.id}>
                   <td>{new Date(r.created_at).toLocaleString('ko-KR')}</td>
-                  <td>{r.email}<br /><span className="hint">{p ? `${FORMS.find((f) => f.key === p.form)?.name || ''} · ${p.industry || ''} · ${st?.name || ''}` : ''}</span>{r.contact && <><br /><b>{r.contact}</b></>}</td>
+                  <td>{r.email}<br /><span className="hint">{p ? [personaOf(p).name, p.industry, st?.name].filter(Boolean).join(' · ') : ''}</span>{r.contact && <><br /><b>{r.contact}</b></>}</td>
                   <td><ul style={{ margin: 0, paddingLeft: 16 }}>{r.topics.map((t) => <li key={t}>{t}</li>)}</ul></td>
                   <td className="hint">{r.videos.slice(0, 5).join(' / ')}{r.videos.length > 5 ? ` 외 ${r.videos.length - 5}개` : ''}</td>
                   <td><select value={r.status} onChange={(e) => act(async () => { await api('/api/admin/consults', { method: 'PATCH', body: { id: r.id, status: e.target.value } }); loadReqs(); })}>
