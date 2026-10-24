@@ -22,7 +22,7 @@ create table if not exists public.profiles (
 create table if not exists public.signals (
   id bigint generated always as identity primary key,
   user_id uuid not null references auth.users(id) on delete cascade,
-  src text not null check (src in ('yt','search','share','image')),
+  src text not null check (src in ('yt','search','share','image','like','sub')),  -- like·sub: 유튜브 연결(좋아요 영상·구독 채널)
   text text not null,
   video_id text,                          -- 유튜브 영상 ID(길이 조회용)
   minutes numeric,                        -- 영상 길이(분), 모르면 null
@@ -109,3 +109,19 @@ create index if not exists reading_user_idx on public.reading_sessions(user_id, 
 alter table public.reading_sessions enable row level security;
 drop policy if exists own_reading on public.reading_sessions;
 create policy own_reading on public.reading_sessions for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
+
+-- 기록 종류에 like(좋아요 영상)·sub(구독 채널) 추가
+alter table public.signals drop constraint if exists signals_src_check;
+alter table public.signals add constraint signals_src_check check (src in ('yt','search','share','image','like','sub'));
+
+-- 유튜브 연결 정보(서버만 읽고 씀 · 정책 없음 = 브라우저에서 접근 불가)
+create table if not exists public.youtube_links (
+  user_id uuid primary key references auth.users(id) on delete cascade,
+  refresh_token text not null,            -- 구글이 준 유튜브 읽기 권한(서버 전용)
+  connected_at timestamptz not null default now(),
+  last_sync_at timestamptz,
+  sub_count int not null default 0,
+  like_count int not null default 0,
+  last_error text
+);
+alter table public.youtube_links enable row level security;

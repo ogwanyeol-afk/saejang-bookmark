@@ -18,6 +18,8 @@
   "vars": {
     "ADMIN_EMAILS": "ohtax4888@naver.com",
     "ANTHROPIC_MODEL": "claude-haiku-5-5",
-    "VAPID_SUBJECT": "mailto:ohtax4888@naver.com"
+    "VAPID_SUBJECT": "mailto:ohtax4888@naver.com",
+    // 유튜브 연결용 구글 OAuth 클라이언트 ID(공개값). 비밀번호는 Secret GOOGLE_CLIENT_SECRET 으로
+    "GOOGLE_CLIENT_ID": "1027458011674-4v17qvo94uv1g4in62v8u0652p6bair2.apps.googleusercontent.com"
   }
 }

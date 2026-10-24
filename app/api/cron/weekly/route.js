@@ -1,6 +1,7 @@
 import { adminClient, json } from '@/lib/supabase-server';
 import { computeReport } from '@/lib/report';
 import { sendPush } from '@/lib/push';
+import { syncYouTube } from '@/lib/youtube-link';
 
 export const dynamic = 'force-dynamic';
 
@@ -15,27 +16,33 @@ export async function GET(req) {
   const { data: subs } = await db.from('push_subscriptions').select('endpoint, user_id, subscription');
   const byUser = new Map();
   for (const s of subs || []) byUser.set(s.user_id, [...(byUser.get(s.user_id) || []), s]);
+  // 유튜브를 연결한 이용자는 리포트 전에 구독·좋아요를 다시 읽음
+  const { data: links } = await db.from('youtube_links').select('user_id');
+  let synced = 0;
+  for (const l of links || []) { try { await syncYouTube(db, l.user_id); synced++; } catch (e) { console.error('yt sync', l.user_id, e.message); } }
+
   const since = new Date(Date.now() - 28 * 864e5).toISOString();
+  const since90 = new Date(Date.now() - 90 * 864e5).toISOString();
   let sent = 0, skipped = 0;
 
   for (const [userId, list] of byUser) {
     const [{ data: prof }, { data: signals }, { data: reads }] = await Promise.all([
       db.from('profiles').select('*').eq('id', userId).maybeSingle(),
-      db.from('signals').select('src, text, topic, sub, level, taxq, sensitive, minutes, happened_at').eq('user_id', userId).gte('happened_at', since).limit(2000),
+      db.from('signals').select('src, text, topic, sub, level, taxq, sensitive, minutes, happened_at').eq('user_id', userId).or(`src.eq.sub,happened_at.gte.${since},and(src.eq.like,happened_at.gte.${since90})`).limit(3000),
       db.from('reading_sessions').select('minutes').eq('user_id', userId).gte('read_at', new Date(Date.now() - 7 * 864e5).toISOString()),
     ]);
     const readMin = (reads || []).reduce((a, x) => a + x.minutes, 0);
     if (!prof?.consent_at) { skipped++; continue; }
     const r = computeReport(signals || [], prof);
-    if (!r.top) { skipped++; continue; }
-    const payloads = [{
-      title: '이번 주 리포트가 도착했어요',
-      body: `유튜브 ${hm(r.total)} · 독서 ${hm(readMin)} · ${r.top.name} 영상 ${r.top.n}개${r.top.repeats ? ` 중 ${r.top.repeats}개는 같은 얘기였어요` : ''}`,
-      url: '/?tab=report', tag: 'weekly-report',
-    }];
+    const body = r.mode === 'watch'
+      ? `유튜브 ${hm(r.total)} · 독서 ${hm(readMin)} · ${r.top.name} 영상 ${r.top.n}개${r.top.repeats ? ` 중 ${r.top.repeats}개는 같은 얘기였어요` : ''}`
+      : r.mode === 'interest'
+        ? `요즘 관심 주제 '${r.top.name}' · 독서 ${hm(readMin)} · 이번 주 처방 책이 도착했어요`
+        : `이번 주 처방 책과 절세팁이 도착했어요 · 독서 ${hm(readMin)}`;
+    const payloads = [{ title: '이번 주 리포트가 도착했어요', body, url: '/?tab=report', tag: 'weekly-report' }];
     const tax = r.topics.find((t) => t.topic === 'tax');
     if (tax && tax.n >= 3) payloads.push({
-      title: `세금 영상 ${tax.n}개 보셨네요`,
+      title: r.mode === 'watch' ? `세금 영상 ${tax.n}개 보셨네요` : `세금 관심 주제가 ${tax.n}개 있어요`,
       body: `"${r.agenda[0]?.q || '세금 고민'}" 등 궁금하신 내용을 정리했어요. 세무사가 직접 답해 드릴게요.`,
       url: '/?tab=tax', tag: 'weekly-tax',
     });
@@ -46,5 +53,5 @@ export async function GET(req) {
     }
     await db.from('profiles').update({ last_report_at: new Date().toISOString() }).eq('id', userId);
   }
-  return json({ users: byUser.size, sent, skipped });
+  return json({ users: byUser.size, sent, skipped, synced });
 }

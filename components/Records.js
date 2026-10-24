@@ -5,7 +5,7 @@ import { topicName, taxqByKey } from '@/lib/catalog';
 import { uploadTakeout } from '@/lib/takeout';
 import { Copy } from './ui';
 
-const SRC = { yt: '영상', search: '검색', share: '공유', image: '이미지' };
+const SRC = { yt: '영상', search: '검색', share: '공유', image: '이미지', like: '좋아요', sub: '구독' };
 const LV = ['입문', '실무', '심화', '전문'];
 const b64ToU8 = (b64) => { const pad = '='.repeat((4 - (b64.length % 4)) % 4); const raw = atob((b64 + pad).replace(/-/g, '+').replace(/_/g, '/')); return Uint8Array.from([...raw].map((c) => c.charCodeAt(0))); };
 
@@ -79,14 +79,6 @@ export default function Records({ profile, setProfile, email, notify, reload, on
         {row('share', '유튜브·블로그 링크', '링크를 붙여넣으면 제목을 읽어 분석합니다. 휴대폰 공유 메뉴로 보내면 더 편해요(아래 설정).', 'https://youtu.be/…', '보내기')}
         {row('search', '검색어', '요즘 찾아본 주제를 적어 주세요.', '예: 간이과세자 부가세 신고', '추가')}
         {row('image', '스크린샷 설명', '캡처한 화면의 내용을 한 줄로 적어 주세요.', '예: 배달앱 리뷰 관리 화면', '추가')}
-        <div className="src-row">
-          <h3>구글 테이크아웃 다시 올리기</h3><p>매주 올리면 리포트가 더 정확해져요. 최근 4주 기록만 읽습니다.</p>
-          <label className="btn ghost" style={{ position: 'relative', marginTop: 8 }}>
-            {busy === 'takeout' ? '분석 중…' : 'watch-history.json 선택'}
-            <input type="file" accept=".json,application/json" style={{ position: 'absolute', opacity: 0, width: 1, height: 1 }} disabled={busy === 'takeout'}
-              onChange={async (e) => { const f = e.target.files[0]; e.target.value = ''; if (!f) return; setBusy('takeout'); try { const n = await uploadTakeout(f); notify(`기록 ${n}건을 분석했어요`); load(); reload(); } catch (err) { notify(err.message); } setBusy(''); }} />
-          </label>
-        </div>
       </div>
 
       <div className="panel">
@@ -113,6 +105,18 @@ export default function Records({ profile, setProfile, email, notify, reload, on
         <p className="hint" style={{ margin: '0 0 8px' }}>매주 일요일 저녁 8시에 리포트를, 세금 영상이 3개 이상이면 상담 주제 알림을 보내드려요.</p>
         {push === '켜짐' ? <button className="btn ghost" onClick={disablePush}>알림 끄기</button> : <button className="btn" onClick={enablePush} disabled={push === '지원 안 됨'}>알림 켜기</button>}
         <label className="toggle" style={{ marginTop: 10 }}><input type="checkbox" checked={profile.exclude_sensitive} onChange={(e) => patch({ exclude_sensitive: e.target.checked })} /> 건강·정치 등 민감 주제는 리포트와 추천에서 제외</label>
+      </div>
+
+      <div className="panel">
+        <h2 className="p">더 정확하게</h2>
+        <div className="src-row" style={{ borderTop: 0, paddingTop: 0 }}>
+          <h3>시청 기록 파일 올리기 <span className="hint">· 선택</span></h3><p>시청 시간과 반복 시청까지 보고 싶을 때만 쓰세요. takeout.google.com에서 YouTube 기록(JSON)을 내려받아 올리면 최근 4주만 읽습니다.</p>
+          <label className="btn ghost" style={{ position: 'relative', marginTop: 8 }}>
+            {busy === 'takeout' ? '분석 중…' : 'watch-history.json 선택'}
+            <input type="file" accept=".json,application/json" style={{ position: 'absolute', opacity: 0, width: 1, height: 1 }} disabled={busy === 'takeout'}
+              onChange={async (e) => { const f = e.target.files[0]; e.target.value = ''; if (!f) return; setBusy('takeout'); try { const n = await uploadTakeout(f); notify(`기록 ${n}건을 분석했어요`); load(); reload(); } catch (err) { notify(err.message); } setBusy(''); }} />
+          </label>
+        </div>
       </div>
 
       <div className="panel">

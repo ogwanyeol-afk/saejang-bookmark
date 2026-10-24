@@ -65,6 +65,8 @@ button:focus-visible,a:focus-visible{outline:2px solid var(--accent);outline-off
 .wrap-card .wk{font-size:.72rem;color:var(--ink-dim);letter-spacing:.04em}
 .wrap-card .big{font-family:var(--f-display);font-weight:800;font-size:2.3rem;line-height:1.1;margin:6px 0 2px;font-variant-numeric:tabular-nums}
 .wrap-card .big small{font-size:1rem;font-weight:700}
+.wrap-card .big.big-t{font-size:1.7rem;line-height:1.25;word-break:keep-all}
+.connect{border-color:var(--accent)}
 .wrap-card .line{font-size:.82rem;color:var(--ink-dim)}
 .wrap-card .alarm{margin-top:12px;padding-top:12px;border-top:1px solid rgba(255,255,255,.14);font-size:.9rem;line-height:1.5}
 .wrap-card .alarm b{color:var(--mark)}
