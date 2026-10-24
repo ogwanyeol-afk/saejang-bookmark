@@ -1,0 +1,21 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  // 워커 이름 = 주소 앞부분: https://saejang-bookmark.<내 계정>.workers.dev
+  "name": "saejang-bookmark",
+  "main": "worker.js",
+  "compatibility_date": "2026-10-01",
+  "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
+  "assets": { "directory": ".open-next/assets", "binding": "ASSETS" },
+  "services": [{ "binding": "WORKER_SELF_REFERENCE", "service": "saejang-bookmark" }],
+  // 정해진 시각에 실행(UTC). worker.js 의 CRONS 와 같아야 합니다.
+  "triggers": { "crons": ["0 11 * * 0", "0 6 * * 3"] },
+  "observability": { "enabled": true },
+  // 대시보드에서 직접 넣은 변수를 배포 때 지우지 않음
+  "keep_vars": true,
+  // 비밀이 아닌 설정값. 비밀값(키)은 대시보드 Settings → Variables and Secrets 에서 Secret 으로 넣습니다.
+  "vars": {
+    "ADMIN_EMAILS": "ohtax4888@naver.com",
+    "ANTHROPIC_MODEL": "claude-haiku-5-5",
+    "VAPID_SUBJECT": "mailto:ohtax4888@naver.com"
+  }
+}
