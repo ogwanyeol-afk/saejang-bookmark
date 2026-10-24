@@ -25,8 +25,8 @@ export async function GET(req) {
 
   // 처방 책(주제별 3권)과 영상 밖의 서가(분야별 3권)를 첫 묶음으로 채움
   const [rxBooks, shelf] = await Promise.all([
-    Promise.all(report.rx.filter((r) => !r.consult).map(async (r) => [r.topic, await fetchBatch(`topic:${r.topic}`, 0, exclude, b2b)])),
-    Promise.all(shelfSpecs(profile).map(async (s) => ({ ...s, batch: await fetchBatch(s.spec, 0, exclude, b2b) }))),
+    Promise.all(report.rx.filter((r) => !r.consult).map(async (r) => [r.topic, await fetchBatch(`topic:${r.topic}`, 0, exclude, { b2b, age: profile?.age ?? null })])),
+    Promise.all(shelfSpecs(profile).map(async (s) => ({ ...s, batch: await fetchBatch(s.spec, 0, exclude, { b2b, age: profile?.age ?? null }) }))),
   ]);
   const byTopic = Object.fromEntries(rxBooks);
   report.rx = report.rx.map((r) => (r.consult ? r : { ...r, spec: `topic:${r.topic}`, batch: byTopic[r.topic] }));

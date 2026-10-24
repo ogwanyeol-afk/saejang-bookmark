@@ -1,5 +1,5 @@
 'use client';
-import { stagesFor, isBiz } from '@/lib/catalog';
+import { stagesFor, isBiz, personaOf, AGE_GUIDE } from '@/lib/catalog';
 import { who } from './ui';
 
 export default function Growth({ profile, go }) {
@@ -10,6 +10,19 @@ export default function Growth({ profile, go }) {
   const max = counts.at(-1);
   return (
     <div className="stack">
+      <div className="wrap-card">
+        <div className="wk">{personaOf(profile).name}{profile.age != null ? ` · ${AGE_GUIDE[profile.age].name}` : ''}의 성장 지도</div>
+        <div className="big big-t">{stages[cur].name}{cur < 3 ? ` → ${stages[cur + 1].name}` : ''}</div>
+        <div className="line">{stages[cur].think}</div>
+      </div>
+      {profile.age != null && (() => { const g = AGE_GUIDE[profile.age]; return (
+        <div className="panel">
+          <div className="stg-h"><h2 className="p" style={{ margin: 0 }}>{g.name}에 챙길 것</h2><span className="hint">나이 기준</span></div>
+          <p className="rx-claim">{g.think}</p>
+          <a className="minibook" href={`https://search.kyobobook.co.kr/search?keyword=${encodeURIComponent(g.book.title + ' ' + g.book.author)}`} target="_blank" rel="noopener noreferrer"><i style={{ background: 'hsl(30 45% 40%)' }} /><span>{g.name}에 읽을 책 · <b>{g.book.title}</b></span></a>
+          <ul style={{ margin: '8px 0 0', paddingLeft: 18, fontSize: '.82rem' }}>{g.items.map((t) => <li key={t}>{t}</li>)}</ul>
+        </div>
+      ); })()}
       <div className="panel thesis">
         {biz ? <>
           <h2 className="p" style={{ margin: 0 }}>사업이 커지면, 대표가 알아야 할 것도 커집니다</h2>

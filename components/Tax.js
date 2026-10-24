@@ -1,7 +1,7 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { api } from '@/lib/supabase-browser';
-import { stagesFor, isBiz, personaOf, PERSONA_TAXQ, taxqByKey } from '@/lib/catalog';
+import { stagesFor, isBiz, personaOf, taxAgendaFor } from '@/lib/catalog';
 import { hm, who, whoLabel, Tip } from './ui';
 
 const OFFICE = process.env.NEXT_PUBLIC_OFFICE_NAME || '담당 세무사';
@@ -23,8 +23,8 @@ export default function Tax({ data, profile, tips, tick, notify }) {
   const persona = profile.persona || profile.form || 'indiv';
   const biz = isBiz(profile);
   const fromVideos = r?.agenda || [];
-  // 세금 영상 기록이 없으면 유형별 대표 질문을 먼저 보여 줌
-  const agenda = fromVideos.length ? fromVideos : (PERSONA_TAXQ[persona] || []).map(taxqByKey).filter(Boolean).map((q) => ({ ...q, n: 0, titles: [] }));
+  // 본 세금 영상 + 유형 + 나이 + 관심 주제로 이 사람에게 맞춘 질문
+  const agenda = taxAgendaFor(profile, fromVideos, r?.topics || []);
   const [sel, setSel] = useState(null);
   const [contact, setContact] = useState('');
   const [mine, setMine] = useState([]);
@@ -64,13 +64,13 @@ export default function Tax({ data, profile, tips, tick, notify }) {
       )}
 
       <div className="panel">
-        <h2 className="p">{fromVideos.length ? '보신 세금 영상으로 상담 주제를 정리했어요' : `${personaOf(profile).name}이 많이 묻는 세금 질문`}</h2>
+        <h2 className="p">{fromVideos.length ? '보신 세금 영상과 내 상황으로 정리한 상담 주제' : '나에게 맞춘 세금 질문'}</h2>
         {agenda.length ? <>
-          <p className="rx-claim" style={{ marginBottom: 8 }}>{fromVideos.length ? <>세금 관련 영상 {tax?.n || r.taxVideos.length}개{tax && tax.minutes ? `(${hm(tax.minutes)})` : ''}를 분석했어요. 같은 주제를 여러 번 보셨다면 아직 답을 못 찾으셨다는 뜻입니다.</> : '궁금한 것을 고르시면 세무사가 내 상황에 맞춰 답해 드려요.'}</p>
+          <p className="rx-claim" style={{ marginBottom: 8 }}>{fromVideos.length ? <>세금 관련 영상 {tax?.n || r.taxVideos.length}개{tax && tax.minutes ? `(${hm(tax.minutes)})` : ''}를 분석했어요. 같은 주제를 여러 번 보셨다면 아직 답을 못 찾으셨다는 뜻입니다.</> : `${personaOf(profile).name}${profile.age != null ? ' · 나이대' : ''}${r?.topics?.length ? ' · 관심 주제' : ''}에 맞춰 골랐어요. 궁금한 것을 고르시면 세무사가 내 상황에 맞춰 답해 드려요.`}</p>
           <div className="agenda">{agenda.map((q) => (
             <label className="ag" key={q.key}>
               <input type="checkbox" checked={chosen.has(q.q)} onChange={(e) => { const n = new Set(chosen); e.target.checked ? n.add(q.q) : n.delete(q.q); setSel(n); }} />
-              <span><b>{q.q}</b>{q.n > 0 && <span className="hint">관련 영상 {q.n}개 · {q.titles[0]}</span>}<span className="ans">→ {q.a}</span></span>
+              <span><b>{q.q}</b> <span className="kb">{q.why}</span>{q.n > 0 && <span className="hint">관련 영상 {q.n}개 · {q.titles[0]}</span>}<span className="ans">→ {q.a}</span></span>
             </label>
           ))}</div>
         </> : <p className="rx-claim">아직 세금 영상 기록이 없어요. 세금 영상을 공유하면 궁금해하실 질문을 자동으로 정리해 드려요. 지금은 {st.name} 단계에 맞춰 전반을 점검해 드립니다.</p>}
