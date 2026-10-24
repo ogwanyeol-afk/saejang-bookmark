@@ -14,7 +14,7 @@ function BookRx({ r, mode, profile, tips, tick, notify }) {
       <p className="rx-claim">{mode === 'watch' ? <>{r.repeats >= 3
         ? <>영상 {r.n}개 중 <b>{r.repeats}개</b>가 같은 소주제{r.topSub ? `(${r.topSub})` : ''}를 반복해요. 같은 얘기를 돌려 보는 중입니다.</>
         : <>이 주제 영상 {r.n}개를 보셨어요.</>} 흩어진 내용을 처음부터 순서대로 정리한 책을 골랐어요.</>
-        : r.n > 0 ? <>구독·좋아요·보낸 기록 중 <b>{r.n}개</b>가 이 주제예요. 영상으로 조각조각 보던 내용을 한 권으로 정리해 보세요.</>
+        : r.n > 0 ? <>구독·좋아요·보낸 기록 중 <b>{r.n}개</b>가 이 주제예요.{r.focus?.length ? <> 특히 <b>{r.focus.slice(0, 2).join(' · ')}</b> 쪽을 많이 보셔서 그 내용부터 골랐어요.</> : ' 영상으로 조각조각 보던 내용을 한 권으로 정리해 보세요.'}</>
           : <>{stagesFor(profile)[profile.stage ?? 0].name} {who(profile) ? `${who(profile)}께` : '단계에'} 필요한 <b>{r.name}</b>의 기본을 처음부터 순서대로 정리한 책을 골랐어요.</>}</p>
       {cyc.loading ? <Loading text={`${r.name} 관련 책을 가져오고 있어요`} /> : b ? (
         <div className="book">

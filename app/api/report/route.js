@@ -4,6 +4,9 @@ import { fetchBatch } from '@/lib/books';
 
 export const dynamic = 'force-dynamic';
 
+// 관심 소주제(구독·좋아요에서 많이 나온 것)를 spec에 붙여 그 소주제 책부터 찾게 함
+const specOf = (r) => [`topic:${r.topic}`, ...(r.focus || []).slice(0, 2)].join('~');
+
 export async function GET(req) {
   const { supabase, user, error } = await userClient(req);
   if (error) return json({ error }, 401);
@@ -25,10 +28,10 @@ export async function GET(req) {
 
   // 처방 책(주제별 3권)과 영상 밖의 서가(분야별 3권)를 첫 묶음으로 채움
   const [rxBooks, shelf] = await Promise.all([
-    Promise.all(report.rx.filter((r) => !r.consult).map(async (r) => [r.topic, await fetchBatch(`topic:${r.topic}`, 0, exclude, { b2b, age: profile?.age ?? null })])),
+    Promise.all(report.rx.filter((r) => !r.consult).map(async (r) => [r.topic, await fetchBatch(specOf(r), 0, exclude, { b2b, age: profile?.age ?? null })])),
     Promise.all(shelfSpecs(profile).map(async (s) => ({ ...s, batch: await fetchBatch(s.spec, 0, exclude, { b2b, age: profile?.age ?? null }) }))),
   ]);
   const byTopic = Object.fromEntries(rxBooks);
-  report.rx = report.rx.map((r) => (r.consult ? r : { ...r, spec: `topic:${r.topic}`, batch: byTopic[r.topic] }));
+  report.rx = report.rx.map((r) => (r.consult ? r : { ...r, spec: specOf(r), batch: byTopic[r.topic] }));
   return json({ report, shelf, youtube: link || null, read: (books || []).filter((b) => b.status === 'read').map((b) => b.title) });
 }
