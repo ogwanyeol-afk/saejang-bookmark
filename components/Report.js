@@ -126,6 +126,43 @@ export function ConnectCard({ youtube, notify, reload, goRecords }) {
   );
 }
 
+const KIND = { like: '좋아요', sub: '구독', yt: '시청', share: '공유', search: '검색', image: '이미지' };
+
+/** 관심 주제(또는 본 영상) 막대 + 주제를 누르면 어떤 채널·영상이 그 주제로 분류됐는지 보기 */
+function TopicsPanel({ r, mode, max, goRecords }) {
+  const [open, setOpen] = useState(r.topics[0]?.topic || null);
+  const src = r.sources || {};
+  return (
+    <div className="panel">
+      <div className="stg-h"><h2 className="p" style={{ margin: 0 }}>{mode === 'watch' ? '무엇을 보셨나' : '관심 주제'}</h2><span className="hint">주제를 누르면 분석 내용</span></div>
+      {r.topics.map((t) => (
+        <div className="trow" key={t.topic}>
+          <button className="topic tbtn" aria-expanded={open === t.topic} onClick={() => setOpen(open === t.topic ? null : t.topic)}>
+            <span className="nm">{t.name} <span className="chev">{open === t.topic ? '▴' : '▾'}</span></span><span className="ct">{t.n}개{mode === 'watch' ? ` · ${hm(t.minutes)}` : ''}</span>
+            <div className="bar" style={{ width: `${(t.n / max) * 100}%` }}>
+              {mode === 'watch' ? <><i style={{ width: `${((t.n - t.repeats) / t.n) * 100}%` }} /><i className="rep" style={{ width: `${(t.repeats / t.n) * 100}%` }} /></> : <i style={{ width: '100%' }} />}
+            </div>
+          </button>
+          {open === t.topic && (
+            <div className="why">
+              <p className="hint" style={{ margin: '0 0 6px' }}>{Object.entries(t.kinds || {}).map(([k, n]) => `${KIND[k] || k} ${n}개`).join(' · ')}가 이 주제로 분류됐어요</p>
+              <ul>{(t.examples || t.titles.map((x) => ({ t: x }))).map((e, i) => (
+                <li key={i}>{e.src && <span className={`kb k-${e.src}`}>{KIND[e.src] || e.src}</span>}<span className="et">{e.t}</span></li>
+              ))}</ul>
+              {t.n > (t.examples || []).length && <p className="hint" style={{ margin: '4px 0 0' }}>외 {t.n - (t.examples || []).length}개</p>}
+            </div>
+          )}
+        </div>
+      ))}
+      {mode === 'watch' && <div className="legend"><span><i style={{ background: 'var(--accent)' }} />새로운 내용</span><span><i style={{ background: 'var(--warn)' }} />반복해서 본 내용</span></div>}
+      <p className="hint" style={{ margin: '10px 0 0' }}>
+        {src.skipped ? `예능·음악처럼 사업과 관계없는 ${src.skipped}개는 분석에서 뺐어요. ` : ''}
+        <a href="#" onClick={(e) => { e.preventDefault(); goRecords(); }}>전체 분류 기록 보기 · 잘못 분류된 건 지우기</a>
+      </p>
+    </div>
+  );
+}
+
 export default function Report({ data, profile, tips, tick, notify, go, onEditMe, reload }) {
   if (!data) return <div className="panel empty">리포트를 만드는 중…</div>;
   const { report: r, shelf, youtube } = data;
@@ -165,20 +202,7 @@ export default function Report({ data, profile, tips, tick, notify, go, onEditMe
       <Tip cat="gen" label="오늘의 절세팁" tips={tips} profile={profile} tick={tick} />
       <StageBox profile={profile} goGrowth={() => go('growth')} />
       <Reading data={data} youtubeMin={mode === 'watch' ? r.total : 0} days={r.period === 'week' ? 7 : 28} notify={notify} />
-      {mode !== 'starter' && r.topics.length > 0 && (
-        <div className="panel">
-          <h2 className="p">{mode === 'watch' ? '무엇을 보셨나' : '관심 주제'}</h2>
-          {r.topics.map((t) => (
-            <div className="topic" key={t.topic}>
-              <span className="nm">{t.name}</span><span className="ct">{t.n}개{mode === 'watch' ? ` · ${hm(t.minutes)}` : ''}</span>
-              <div className="bar" style={{ width: `${(t.n / max) * 100}%` }}>
-                {mode === 'watch' ? <><i style={{ width: `${((t.n - t.repeats) / t.n) * 100}%` }} /><i className="rep" style={{ width: `${(t.repeats / t.n) * 100}%` }} /></> : <i style={{ width: '100%' }} />}
-              </div>
-            </div>
-          ))}
-          {mode === 'watch' && <div className="legend"><span><i style={{ background: 'var(--accent)' }} />새로운 내용</span><span><i style={{ background: 'var(--warn)' }} />반복해서 본 내용</span></div>}
-        </div>
-      )}
+      {mode !== 'starter' && r.topics.length > 0 && <TopicsPanel r={r} mode={mode} max={max} goRecords={() => go('records')} />}
       <div><h2 className="p" style={{ margin: '6px 0 2px' }}>이번 주 처방</h2><p className="hint" style={{ margin: 0 }}>영상은 오늘 써먹을 방법을, 책은 사업을 키우는 생각의 틀을 줍니다.</p></div>
       {r.rx.map((x) => x.consult ? (
         <div className="panel rx" key={x.topic}>
