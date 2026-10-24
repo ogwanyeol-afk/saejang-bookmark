@@ -76,7 +76,7 @@
    | `ALADIN_TTB_KEY`, `LIBRARY_API_KEY`, `NL_API_KEY` | 도서 API (없으면 그 출처를 건너뜀) |
    | `YOUTUBE_API_KEY` | 영상 길이 조회 (없으면 영상당 11분) |
 | `KAKAO_REST_KEY` | 카카오 책 검색 (developers.kakao.com → 앱 만들기 → REST API 키, 바로 발급) |
-| `NAVER_CLIENT_ID`, `NAVER_CLIENT_SECRET` | 네이버 책 검색 (developers.naver.com → 애플리케이션 등록 → 검색 API, 바로 발급, 하루 2만 5천 회) |
+| `NAVER_CLIENT_ID`, `NAVER_CLIENT_SECRET` | 네이버 책 검색 — 네이버가 검색 API 신규 신청을 막고 API HUB로 옮겨 **새로 발급 불가**. 기존 키가 있을 때만 사용 |
 
    `ADMIN_EMAILS`, `ANTHROPIC_MODEL`, `VAPID_SUBJECT`는 `wrangler.jsonc`의 `vars`에 이미 들어 있습니다.
 6. 4번 주소를 Supabase Authentication → URL Configuration의 Site URL과 Redirect URLs에 넣습니다.
