@@ -179,6 +179,10 @@ input[type=search],.custom input{font:400 .86rem var(--f-body);width:100%;paddin
 .pills{display:flex;flex-wrap:wrap;gap:6px}
 .pill{font:500 .8rem var(--f-body);border:1px solid var(--line);background:var(--surface);color:var(--fg);border-radius:999px;padding:7px 12px;cursor:pointer}
 .pill[aria-pressed="true"]{background:var(--fg);border-color:var(--fg);color:var(--bg)}
+.pill.sm{font-size:.74rem;padding:5px 10px;color:var(--muted,#777);border-style:dashed}
+.ggrp{display:grid;gap:6px;margin-bottom:10px}
+.arow{display:flex;gap:6px;margin:4px 0 8px}
+.arow input{flex:1;min-width:0;font:inherit;border:1px solid var(--line);border-radius:10px;padding:9px 12px;background:var(--surface);color:var(--fg)}
 .other{display:grid;gap:12px}
 .ob-b{display:grid;grid-template-columns:52px 1fr;gap:12px;align-items:start;padding-top:12px;border-top:1px solid var(--line)}
 .ob-b:first-child{border-top:0;padding-top:0}

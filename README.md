@@ -118,7 +118,7 @@
 3. `.env.production.local`에 `NEXT_PUBLIC_` 값들을 넣습니다.
 4. `npm run preview`를 실행합니다. Workers 런타임으로 `localhost:8787`에서 열립니다.
 
-이미 Supabase에 이전 스키마를 실행했다면 `supabase/migrations/` 안의 새 파일만 순서대로 실행하면 됩니다(002 유튜브 연결, 003 이용자 유형·만 14세 확인).
+이미 Supabase에 이전 스키마를 실행했다면 `supabase/migrations/` 안의 새 파일만 순서대로 실행하면 됩니다(002 유튜브 연결, 003 이용자 유형·만 14세 확인, 004 좋아하는 작가).
 
 ## 바꾸고 싶을 때
 

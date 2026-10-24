@@ -11,6 +11,7 @@ create table if not exists public.profiles (
   stage int,                              -- 사업 단계 0~3
   age int,                                -- 0:20대 … 4:60대 이상
   genres text[] not null default '{}',
+  authors text[] not null default '{}',   -- 좋아하는 작가(최대 5명)
   gaps text[] not null default '{}',
   onboarded_at timestamptz,
   share_token text unique,                -- iOS 단축어 공유용 개인 토큰

@@ -33,5 +33,5 @@ export async function GET(req) {
   ]);
   const byTopic = Object.fromEntries(rxBooks);
   report.rx = report.rx.map((r) => (r.consult ? r : { ...r, spec: specOf(r), batch: byTopic[r.topic] }));
-  return json({ report, shelf, youtube: link || null, read: (books || []).filter((b) => b.status === 'read').map((b) => b.title) });
+  return json({ report, shelf: shelf.filter((s) => s.batch?.books?.length || !s.spec.startsWith('author:')), youtube: link || null, read: (books || []).filter((b) => b.status === 'read').map((b) => b.title) });
 }

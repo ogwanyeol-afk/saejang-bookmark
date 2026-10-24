@@ -1,6 +1,6 @@
 'use client';
 import { useState } from 'react';
-import { PERSONAS, GROUPS, INDUSTRIES, AGES, GENRES, GAPS, stagesFor } from '@/lib/catalog';
+import { PERSONAS, GROUPS, INDUSTRIES, AGES, GENRES, GENRE_GROUPS, GAPS, AUTHOR_PICKS, MAX_AUTHORS, cleanAuthorName, stagesFor } from '@/lib/catalog';
 
 const BIZ_STEPS = ['나는', '업종', '매출 규모', '나에 대해'];
 const LIFE_STEPS = ['나는', '지금 단계', '나에 대해'];
@@ -19,16 +19,27 @@ export default function Onboarding({ profile, onSave, onCancel, meOnly, notify }
   const [age, setAge] = useState(profile?.age ?? null);
   const [genres, setGenres] = useState(new Set(profile?.genres || []));
   const [gaps, setGaps] = useState(new Set(profile?.gaps || []));
+  const [authors, setAuthors] = useState(profile?.authors || []);
+  const [aq, setAq] = useState('');
+  const addAuthor = (raw) => {
+    const a = cleanAuthorName(raw);
+    if (a.length < 2) return;
+    if (authors.includes(a)) { setAq(''); return; }
+    if (authors.length >= MAX_AUTHORS) { notify?.(`작가는 ${MAX_AUTHORS}명까지 적을 수 있어요`); return; }
+    setAuthors([...authors, a]); setAq('');
+  };
   const [busy, setBusy] = useState(false);
   const who = biz ? (form === 'corp' ? '대표님' : '사장님') : '나';
   const chosen = custom.trim() || industry;
 
+  // 입력칸에 적고 '추가'를 안 눌렀어도 저장할 때 함께 넣음
+  const pending = () => { const a = cleanAuthorName(aq); return a.length >= 2 && !authors.includes(a) ? [...authors, a].slice(0, MAX_AUTHORS) : authors; };
   const save = async () => {
     setBusy(true);
     try {
       await onSave(meOnly
-        ? { age, genres: [...genres], gaps: [...gaps] }
-        : { persona, ...(biz ? { industry: chosen } : {}), stage: form === 'pre' ? 0 : stage, age, genres: [...genres], gaps: [...gaps], onboarded: true });
+        ? { age, genres: [...genres], authors: pending(), gaps: [...gaps] }
+        : { persona, ...(biz ? { industry: chosen } : {}), stage: form === 'pre' ? 0 : stage, age, genres: [...genres], authors: pending(), gaps: [...gaps], onboarded: true });
     } catch (e) { notify?.(e.message); setBusy(false); }
   };
   const toggle = (set, setter, k, max) => {
@@ -82,7 +93,19 @@ export default function Onboarding({ profile, onSave, onCancel, meOnly, notify }
         <h3>나이대</h3>
         <div className="pills">{AGES.map((a, i) => <button key={a} className="pill" aria-pressed={age === i} onClick={() => setAge(age === i ? null : i)}>{a}</button>)}</div>
         <h3>좋아하거나 읽어보고 싶은 분야 <span className="hint">· 여러 개</span></h3>
-        <div className="pills">{Object.entries(GENRES).map(([k, g]) => <button key={k} className="pill" aria-pressed={genres.has(k)} onClick={() => toggle(genres, setGenres, k)}>{g.name}</button>)}</div>
+        {GENRE_GROUPS.map(([gk, gname]) => (
+          <div key={gk} className="ggrp">
+            <span className="hint">{gname}</span>
+            <div className="pills">{Object.entries(GENRES).filter(([, g]) => g.group === gk).map(([k, g]) => <button key={k} className="pill" aria-pressed={genres.has(k)} onClick={() => toggle(genres, setGenres, k, 15)}>{g.name}</button>)}</div>
+          </div>
+        ))}
+        <h3>좋아하는 작가 <span className="hint">· 최대 {MAX_AUTHORS}명, 그 작가의 책을 따로 꺼내 드려요</span></h3>
+        {authors.length > 0 && <div className="pills">{authors.map((a) => <button key={a} className="pill" aria-pressed="true" aria-label={`${a} 빼기`} onClick={() => setAuthors(authors.filter((x) => x !== a))}>{a} ✕</button>)}</div>}
+        <form className="arow" onSubmit={(e) => { e.preventDefault(); addAuthor(aq); }}>
+          <input type="text" value={aq} maxLength={30} placeholder="작가 이름 (예: 한강)" onChange={(e) => setAq(e.target.value)} />
+          <button className="btn ghost" type="submit" disabled={cleanAuthorName(aq).length < 2}>추가</button>
+        </form>
+        <div className="pills">{AUTHOR_PICKS.filter((a) => !authors.includes(a)).map((a) => <button key={a} className="pill sm" onClick={() => addAuthor(a)}>+ {a}</button>)}</div>
         <h3>요즘 부족하다고 느끼는 지혜 <span className="hint">· 최대 3개</span></h3>
         <div className="pills">{Object.entries(GAPS).map(([k, g]) => <button key={k} className="pill" aria-pressed={gaps.has(k)} onClick={() => toggle(gaps, setGaps, k, 3)}>{g.name}</button>)}</div>
         <div className="acts">
